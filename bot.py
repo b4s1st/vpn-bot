@@ -5,17 +5,18 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.types import Message, BufferedInputFile
 
-# Railway сам подставит эти значения из панели управления
-TOKEN = os.getenv("8742890963:AAHkF3akMyOGCQMheJ6RbhMXSmNiQSpPri0")
-AUTHOR_USERNAME = os.getenv("AUTHOR_USERNAME", "@b4s1st") 
+# Код жестко берет данные ТОЛЬКО из панели Railway. В самом файле пусто.
+TOKEN = os.getenv("BOT_TOKEN")
+AUTHOR_USERNAME = os.getenv("AUTHOR_USERNAME") 
 
 if not TOKEN:
-    raise ValueError("Ошибка: Переменная окружения BOT_TOKEN не задана!")
+    raise ValueError("ERROR: BOT_TOKEN is missing in Railway Variables!")
+if not AUTHOR_USERNAME:
+    raise ValueError("ERROR: AUTHOR_USERNAME is missing in Railway Variables!")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# Список твоих VPN-ссылок
 VPN_LINKS = [
     "vless://f5747be5-cd72-4092-93ed-6ab712727e46@de1.darknet.lol:443?encryption=none&security=tls&type=grpc&serviceName=grpc&fp=chrome&sni=de1.darknet.lol&alpn=h2#Германия 1",
     "vless://f5747be5-cd72-4092-93ed-6ab712727e46@nl1.crystalia.world:443?encryption=none&security=tls&type=grpc&serviceName=grpc&fp=chrome&sni=nl1.crystalia.world&alpn=h2#Нидерланды 1",
@@ -51,5 +52,20 @@ async def command_start_handler(message: Message) -> None:
         f"📖 <b>ИНСТРУКЦИЯ ПО ПОДКЛЮЧЕНИЮ В hApp:</b>\n\n"
         f"1️⃣ <b>Скопируй код</b> подписки выше (просто тапни по нему).\n"
         f"2️⃣ Открой приложение <b>hApp</b>.\n"
-        f"3️⃣ Перейди во вкладку <b>«Настройки»</b> или в раздел <b>«Прокси» / «Группы»</b>.\n"
-        f"4️⃣ Найди пункт <b>«Добав
+        f"3️⃣ Перейди во вкладку <b>«Настройки»</b>или в раздел <b>«Прокси» / «Группы»</b>.\n"
+        f"4️⃣ Найди пункт <b>«Добавить подписку»</b> (кнопка <b>«+»</b>).\n"
+        f"5️⃣ В поле ввода вставь скопированный код и введи имя (например, <i>MyVPN</i>).\n"
+        f"6️⃣ Нажми <b>«Сохранить»</b>, а затем обнови подписку (значок стрелочек).\n"
+        f"7️⃣ Выбери сервер на главном экране и подключайся! 🚀"
+    )
+    
+    await message.answer(welcome_text, parse_mode="HTML")
+    
+    file_buffer = BufferedInputFile(sub_config.encode('utf-8'), filename="happ_sub.txt")
+    await message.answer_document(document=file_buffer, caption="📂 Файл подписки для hApp")
+
+async def main() -> None:
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
